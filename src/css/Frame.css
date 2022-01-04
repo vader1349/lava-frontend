@@ -1,0 +1,44 @@
+.logo {
+    height: 150px;
+    padding: 50px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.ant-layout-sider-trigger{
+  background-color: #B22222;
+}
+
+.ant-menu-item-selected{
+  background-color: white !important;
+}
+
+.ant-menu-item-selected .ant-menu-title-content{
+  color: #800000 !important;
+}
+
+.ant-menu-item-selected .ant-menu-item-icon{
+  color: #800000 !important;
+}
+
+.header{
+  color: #800000;
+  height: 80px;
+  line-height: 80px;
+  font-size: 50px;
+  margin-left: 20px;
+  font-family: "Lucida Console", "Courier New", monospace;
+  display: flex;
+  justify-content: space-between;
+}
+
+.exit{
+  margin: 20px;
+  font-size: 40px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.exit:hover{
+  color: #B22222;
+}

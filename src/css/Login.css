@@ -1,0 +1,28 @@
+.Login {
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: #B22222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login_form{
+  width: 400px;
+  height: 500px;
+  background-color: white;
+  border-radius: 20px;
+}
+
+.title{
+  color: #800000;
+  font-size: 50px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+
+.icon{
+  margin-top: 50px;
+}
