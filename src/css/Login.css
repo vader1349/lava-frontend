@@ -2,7 +2,7 @@
   text-align: center;
   width: 100vw;
   height: 100vh;
-  background-color: #B22222;
+  background-color: #800000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +10,7 @@
 
 .login_form{
   width: 400px;
-  height: 500px;
+  height: 450px;
   background-color: white;
   border-radius: 20px;
 }

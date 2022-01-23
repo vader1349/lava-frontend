@@ -1,6 +1,6 @@
 import { useEffect,useCallback } from 'react';
 import './css/Login.css';
-import {Form, Input, Button, Checkbox} from 'antd';
+import {Form, Input, Button} from 'antd';
 import 'antd/dist/antd.min.css';
 import {FireOutlined} from '@ant-design/icons';
 import {useDispatch} from 'react-redux';
@@ -14,32 +14,30 @@ function Login() {
   const dispatch=useDispatch();
   const navigate=useNavigate();
 
-  const submit=useCallback((id,password,remenber)=>{
+  const submit=useCallback((id,password)=>{
     axios.get(`${url}/user/${id}/${password}`)
          .then((res)=>{
            if(res.data.id!==0){
             dispatch(login(res.data));
-            navigate('/layout');
-            if(remenber){
-              cookie.save('id',id);
-              cookie.save('password',password);
+            if(res.data.type==='0'){
+              navigate('./workspace/create_course');
             }
+            cookie.save('id',id,{path:'/'});
+            cookie.save('password',password,{path:'/'});
           }
     });
   },[dispatch,navigate]);
 
   useEffect(() => {
-    let id=cookie.load('id');
-    let password=cookie.load('password');
-    if(id!==undefined&&password!==undefined){
-      submit(id,password,true);
+    if(cookie.load('id')&&cookie.load('password')){
+      submit(cookie.load('id'),cookie.load('password'));
     }
   }, [submit]);
 
   return (
     <div className="Login">
       <div className="login_form">
-        <Form labelCol={{span: 8}} wrapperCol={{span: 12}} initialValues={{remember: false}} onFinish={value=>submit(value.id,value.password,value.remember)}>
+        <Form labelCol={{span: 8}} wrapperCol={{span: 12}} initialValues={{}} onFinish={value=>submit(value.id,value.password)}>
           <FireOutlined className="icon" style={{fontSize: "80px",color:"#800000"}} />
           <div className="title">Lava</div>
           <Form.Item label="用户ID" name="id" rules={[{required: true,message: '请输入用户ID'}]}>
@@ -47,9 +45,6 @@ function Login() {
           </Form.Item>
           <Form.Item label="密码" name="password" rules={[{required: true,message: '请输入密码'}]}>
             <Input.Password />
-          </Form.Item>
-          <Form.Item name="remember" valuePropName="checked" wrapperCol={{span: 24}}>
-            <Checkbox>记住我</Checkbox>
           </Form.Item>
           <Form.Item wrapperCol={{span: 24}}>
             <Button type="primary" htmlType="submit" size="large" shape="round" style={{backgroundColor:"#800000"}}>登录</Button>
