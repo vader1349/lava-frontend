@@ -14,7 +14,7 @@ function Login() {
   const dispatch=useDispatch();
   const navigate=useNavigate();
 
-  const submit=useCallback((id,password)=>{
+  const handleFinish=useCallback((id,password)=>{
     axios.get(`${url}/user/${id}/${password}`)
          .then((res)=>{
            if(res.data.id!==0){
@@ -25,19 +25,22 @@ function Login() {
             cookie.save('id',id,{path:'/'});
             cookie.save('password',password,{path:'/'});
           }
-    });
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
   },[dispatch,navigate]);
 
   useEffect(() => {
     if(cookie.load('id')&&cookie.load('password')){
-      submit(cookie.load('id'),cookie.load('password'));
+      handleFinish(cookie.load('id'),cookie.load('password'));
     }
-  }, [submit]);
+  }, [handleFinish]);
 
   return (
     <div className="Login">
       <div className="login_form">
-        <Form labelCol={{span: 8}} wrapperCol={{span: 12}} initialValues={{}} onFinish={value=>submit(value.id,value.password)}>
+        <Form labelCol={{span: 8}} wrapperCol={{span: 12}} initialValues={{}} onFinish={value=>handleFinish(value.id,value.password)}>
           <FireOutlined className="icon" style={{fontSize: "80px",color:"#800000"}} />
           <div className="title">Lava</div>
           <Form.Item label="用户ID" name="id" rules={[{required: true,message: '请输入用户ID'}]}>
