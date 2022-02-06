@@ -3,65 +3,17 @@ import {useSelector} from 'react-redux';
 import {Form, Input, Button, Select} from 'antd';
 import { useState,useEffect } from 'react';
 import axios from 'axios';
-import {url} from './actions';
+import {url,courseFormats} from './properties';
 
 function CreateCourse(){
 
     const userName=useSelector(state=>state.user.name);
-    const [type,setType]=useState('-1');
-    const [programType,setProgramType]=useState('-1');
-    const [programs,setPrograms]=useState([]);
-    const [departments,setDepartments]=useState([]);
     const [form] = Form.useForm();
-
-    const selectType=value=>{
-        setType(value);
-    }
-
-    const selectProgramType=value=>{
-        setProgramType(value);
-    }
-
-    const handleFinish=value=>{
-        var types=["administrator","student","instructor"];
-        axios.post(`${url}/${types[parseInt(type)]}`, {
-            name:value.name,
-            email:value.email,
-            password:value.email,
-            type:type,
-            departmentId:value.departmentId,
-            position:value.position,
-        })
-        .then(res=>{
-            if(res.data!==0){
-                alert("注册成功！用户初始密码位E-mail地址。");
-                if(type==='1'){
-                    axios.post(`${url}/student_program`,{
-                        programId:value.programId,
-                        studentId:res.data,
-                    })
-                    .catch(function (error) {
-                        alert("注册攻读项目失败！请检查稍后再试。");
-                        console.log(error);
-                    });
-                }
-                form.setFieldsValue({type:type});
-            }
-        })
-        .catch(function (error) {
-            alert("注册失败！请检查E-mail地址等信息是否正确。");
-            console.log(error);
-        });
-    }
-
+    const [departmentId,setDepartmentId]=useState(0);
+    const [departments,setDepartments]=useState([]);
+    const [instructors,setInstructors]=useState([]);
+    
     useEffect(() => {
-        axios.get(`${url}/program`)
-         .then((res)=>{
-           setPrograms(res.data);
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
         axios.get(`${url}/department`)
          .then((res)=>{
            setDepartments(res.data);
@@ -71,6 +23,35 @@ function CreateCourse(){
         });
     }, []);
 
+    const selectDepartment=(id)=>{
+        setDepartmentId(id);
+        axios.get(`${url}/instructor/${id}`)
+         .then((res)=>{
+           setInstructors(res.data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    }
+
+    const handleFinish=value=>{
+        axios.post(`${url}/course`, {
+            instructorId:value.instructorId,
+            code:value.code,
+            format:value.format
+        })
+        .then(res=>{
+            if(res.data.courseId!==0){
+                alert("课程创建成功！");
+                form.setFieldsValue({code:''});
+            }
+        })
+        .catch(function (error) {
+            alert("注册失败！请检查课程代码是否正确或稍后再试。");
+            console.log(error);
+        });;
+    }
+
     return(
         <div className='main'>
             <Breadcrumb style={{ margin: '16px 0' }}>
@@ -79,45 +60,23 @@ function CreateCourse(){
             </Breadcrumb>
             <div className='main-content'>
                 <div className='main-content-area'>
-                    <Form form={form} labelCol={{span: 4}} wrapperCol={{span: 8}} initialValues={{}} onFinish={value=>handleFinish(value)}>
-                        <Form.Item label="用户类型" name="type" rules={[{required: true,message: '请选择用户类型'}]}>
-                            <Select onChange={value=>selectType(value)}>
-                                <Select.Option value="0">管理员</Select.Option>
-                                <Select.Option value="1">学生</Select.Option>
-                                <Select.Option value="2">讲师</Select.Option>
+                <Form form={form} labelCol={{span: 4}} wrapperCol={{span: 8}} initialValues={{}} onFinish={value=>handleFinish(value)}>
+                        <Form.Item label="开设院系" name="departmentId" rules={[{required: true,message: '请选择开设院系'}]}>
+                            <Select onChange={value=>selectDepartment(value)}>
+                                {departments.map(department=><Select.Option key={department.departmentId} value={department.departmentId}>{department.departmentName}</Select.Option>)}
                             </Select>
                         </Form.Item>
-                        {type!=='-1'&&<Form.Item label="姓名" name="name" rules={[{required: true,message: '请输入姓名'}]}>
+                        {departmentId!==0&&<Form.Item label="讲师" name="instructorId" rules={[{required: true,message: '请选择任课讲师'}]}>
+                            <Select>
+                                {instructors.map(instructor=><Select.Option key={instructor.id} value={instructor.id}>{instructor.name}</Select.Option>)}
+                            </Select>
+                        </Form.Item>}
+                        {departmentId!==0&&<Form.Item label="课程代码" name="code" rules={[{required: true,message: '请输入课程代码'}]}>
                             <Input/>
                         </Form.Item>}
-                        {type!=='-1'&&<Form.Item label="E-mail" name="email" rules={[{required: true,message: '请输入E-mail地址'}]}>
-                            <Input/>
-                        </Form.Item>}
-                        {type==='1'&&<Form.Item label="学位类型" name="program_type" rules={[{required: true,message: '请选择学位类型'}]}>
-                            <Select onChange={value=>selectProgramType(value)}>
-                                <Select.Option value="0">学士</Select.Option>
-                                <Select.Option value="1">硕士</Select.Option>
-                                <Select.Option value="2">博士</Select.Option>
-                            </Select>
-                        </Form.Item>}
-                        {type==='1'&&<Form.Item label="项目" name="programId" rules={[{required: true,message: '请选择攻读项目'}]}>
+                        {departmentId!==0&&<Form.Item label="授课形式" name="format" rules={[{required: true,message: '请选择授课形式'}]}>
                             <Select>
-                                {programs.filter(p=>p.programType===programType).map(p=><Select.Option key={p.programId} value={p.programId}>{p.programName}</Select.Option>)}
-                            </Select>
-                        </Form.Item>}
-                        {type==='2'&&<Form.Item label="所属学院" name="departmentId" rules={[{required: true,message: '请选择所属学院'}]}>
-                            <Select>
-                                {departments.map(d=><Select.Option key={d.departmentId} value={d.departmentId}>{d.departmentName}</Select.Option>)}
-                            </Select>
-                        </Form.Item>}
-                        {type==='2'&&<Form.Item label="职称" name="position" rules={[{required: true,message: '请选择职称'}]}>
-                            <Select>
-                                <Select.Option value="0">讲师</Select.Option>
-                                <Select.Option value="1">副教授</Select.Option>
-                                <Select.Option value="2">教授</Select.Option>
-                                <Select.Option value="3">荣誉教授</Select.Option>
-                                <Select.Option value="4">副院长</Select.Option>
-                                <Select.Option value="5">院长</Select.Option>
+                                {courseFormats.map((format,index)=><Select.Option key={index} value={index.toString()}>{format}</Select.Option>)}
                             </Select>
                         </Form.Item>}
                         <Form.Item wrapperCol= {{offset: 4,span: 8}}>

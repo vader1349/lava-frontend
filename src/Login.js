@@ -5,8 +5,9 @@ import 'antd/dist/antd.min.css';
 import {FireOutlined} from '@ant-design/icons';
 import {useDispatch} from 'react-redux';
 import axios from 'axios';
-import {url,login} from './actions';
-import { useNavigate } from "react-router-dom";
+import {login} from './actions';
+import {url} from './properties';
+import {useNavigate} from "react-router-dom";
 import cookie from 'react-cookies';
 
 function Login() {
@@ -24,7 +25,10 @@ function Login() {
             }
             cookie.save('id',id,{path:'/'});
             cookie.save('password',password,{path:'/'});
-          }
+            }
+            else{
+              alert("ID或密码错误！");
+            }
           })
           .catch(function (error) {
             console.log(error);

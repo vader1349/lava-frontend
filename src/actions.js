@@ -3,8 +3,6 @@ export const Action=Object.freeze({
     logout:'logout',
 });
 
-export const url="http://localhost:8080";
-
 export function login(user){
     return{
         type:Action.login,
